@@ -4,11 +4,14 @@
 //Vektorer skal vaere enkeltpekere.
 //Vet at de 3 laveste egenverdiene skal vaere: 3, 7, 11
 
+#define CATCH_CONFIG_RUNNER
+#include "catch.hpp"
 #include <iostream>
 #include <cmath>
 #include <array>
 #include <vector>
 //#include "jacobi.h"
+//
 using namespace std;
 
 //Function prototypes:
@@ -17,9 +20,40 @@ double maxoffdiag(double** A, int& k, int& l, int N);
 void jacobi_method(double** A, double** R, int N);
 void rotate ( double ** A, double ** R, int k, int l, int N );
 
-int main(){
+int n = 5;
+//Unit test (skal sjekke om jacobi finner rett egenverdier):
+/*
+TEST_CASE("5x5 egenverdi-test") {
+    //Set up 5x5 matrix:
+    double** testMatrix = new double*[n];
+    for (int i = 0; i < n; i++){
+        testMatrix[i] = new double[n];
+    }
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j < n; j++){
+            if (i == j){
+                testMatrix[i][j] = 1.0;
+            }
+            else{
+                testMatrix[i][j] = 0.0;
+            }
+        }
+
+    }
+
+    // solve with jacobi:
+    jacobi_method(testMatrix, R, n);
+    // REQUIRE(eigenvalue0 == known value)
+}//Slutt test
+*/
+
+int main(int argc, char* argv[]){
+
+    //int result = Catch::Session().run(argc, argv);  //kjorer testen
+
+
     //Definerer var som trengs for a lage matrisen A
-    int N = 200;
+    int N = 100;
     double rho_0 = 0;
     double rho_max = 5;
     double h = (rho_max - rho_0)/((double)N);
