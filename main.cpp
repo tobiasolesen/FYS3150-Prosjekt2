@@ -29,17 +29,17 @@ TEST_CASE("5x5 egenverdi-test") {
     vector <double> diag(n);
 
     //Set up 5x5 identity matrix:
-    double** testMatrix = new double*[n];
+    double** testMatrix_1 = new double*[n];
     for (int i = 0; i < n; i++){
-        testMatrix[i] = new double[n];
+        testMatrix_1[i] = new double[n];
     }
     for (int i = 0; i < n; i++){
         for (int j = 0; j < n; j++){
             if (i == j){
-                testMatrix[i][j] = 1.0;
+                testMatrix_1[i][j] = 1.0;
             }
             else{
-                testMatrix[i][j] = 0.0;
+                testMatrix_1[i][j] = 0.0;
             }
         }
 
@@ -51,17 +51,45 @@ TEST_CASE("5x5 egenverdi-test") {
     }
 
     // solve with jacobi:
-    diag = jacobi_method(testMatrix, R, n);
+    diag = jacobi_method(testMatrix_1, R, n);
     eigenvalue0 = diag[0];
-    cout << eigenvalue0;
     REQUIRE(abs(eigenvalue0 - eigenvalue0_known) < tolerance);
 }//Slutt test
 
+//Unit test (skal sjekke om maxoffdiag faktisk finner det storste offdiag elementet):
+TEST_CASE("5x5 maks offdiag element test") {
+    int n = 5;
+    double tolerance = pow(10.0, -2.0);
+    double maks_known = 0;
+    int k;
+    int l;
+
+    //Set up 5x5 matrix with:
+    double** testMatrix_2 = new double*[n];
+    for (int i = 0; i < n; i++){
+        testMatrix_2[i] = new double[n];
+    }
+    for (int i = 0; i < n; i++){
+        for (int j = 0; j < n; j++){
+            if (i == j){
+                testMatrix_2[i][j] = 1.0;
+            }
+            else{
+                testMatrix_2[i][j] = 0.0;
+            }
+        }
+
+    }
+    // use maxoffdiag:
+    double maks = maxoffdiag(testMatrix_2, k, l, n);
+    cout << "maks offdiag element: " << maks << endl;
+
+    REQUIRE(abs(maks - maks_known) < tolerance);
+}//Slutt test
 
 int main(int argc, char* argv[]){
 
     int result = Catch::Session().run(argc, argv);  //kjorer testen
-
 
     //Definerer var som trengs for a lage matrisen A
     int N = 100;
