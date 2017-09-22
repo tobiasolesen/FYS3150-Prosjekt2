@@ -11,20 +11,24 @@
 #include <array>
 #include <vector>
 //#include "jacobi.h"
-//
+
 using namespace std;
 
 //Function prototypes:
 void printMatrixA(double** A, int N);
 double maxoffdiag(double** A, int& k, int& l, int N);
-void jacobi_method(double** A, double** R, int N);
+vector<double> jacobi_method(double** A, double** R, int N);
 void rotate ( double ** A, double ** R, int k, int l, int N );
 
-int n = 5;
 //Unit test (skal sjekke om jacobi finner rett egenverdier):
-/*
 TEST_CASE("5x5 egenverdi-test") {
-    //Set up 5x5 matrix:
+    int n = 5;
+    double tolerance = pow(10.0, -2.0);
+    double eigenvalue0_known = 1;
+    double eigenvalue0;
+    vector <double> diag(n);
+
+    //Set up 5x5 identity matrix:
     double** testMatrix = new double*[n];
     for (int i = 0; i < n; i++){
         testMatrix[i] = new double[n];
@@ -41,15 +45,22 @@ TEST_CASE("5x5 egenverdi-test") {
 
     }
 
+    double** R = new double*[n];
+    for (int i = 0; i < n; i++){
+        R[i] = new double[n];
+    }
+
     // solve with jacobi:
-    jacobi_method(testMatrix, R, n);
-    // REQUIRE(eigenvalue0 == known value)
+    diag = jacobi_method(testMatrix, R, n);
+    eigenvalue0 = diag[0];
+    cout << eigenvalue0;
+    REQUIRE(abs(eigenvalue0 - eigenvalue0_known) < tolerance);
 }//Slutt test
-*/
+
 
 int main(int argc, char* argv[]){
 
-    //int result = Catch::Session().run(argc, argv);  //kjorer testen
+    int result = Catch::Session().run(argc, argv);  //kjorer testen
 
 
     //Definerer var som trengs for a lage matrisen A
@@ -117,7 +128,7 @@ void printMatrixA(double** A, int N) {
 }
 
 //Setting up the eigenvector matrix (som identitetsmatrisen?):
-void jacobi_method(double** A, double** R, int N) {
+vector<double> jacobi_method(double** A, double** R, int N) {
 
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++){
@@ -155,7 +166,7 @@ void jacobi_method(double** A, double** R, int N) {
     //Skriver ut diag sine 3 forste elementer (3 forste egenverdiene):
     cout << "3 forste egenverdier: " << diag[0] << " " << diag[1] << " " << diag[2] << endl;
 
-    return;
+    return diag;
 }
 
 //Function to find the maximum element of A:
@@ -171,9 +182,7 @@ double maxoffdiag ( double** A, int& k, int& l, int N) {
             }
         }
     }
-
     return max;
-
 }
 
 // Function to find the values of cos and sin
