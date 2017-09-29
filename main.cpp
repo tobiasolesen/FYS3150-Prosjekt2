@@ -4,12 +4,20 @@
 //Vektorer skal vaere enkeltpekere.
 //Vet at de 3 laveste egenverdiene skal vaere: 3, 7, 11
 
+//i d) skal jeg bruke koden fra b), endrer bare pa potensialet V(rho)
+//rho er avstanden mellom partiklene (?)
+//Vil finne den minste egenverdien (tilsvarer energien til ground state) og tilhorende egenvektor (bolgefunksjonen i ground state)
+//apne tekstfil i terminal: less "filnavn"
+//Komme ut av fil og tilbake i terminal: shift + q
+//Med w_r=0.25 skal de minste egenverdiene bli: 1.25, 2.19, 3.18 ca
+
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
 #include <iostream>
 #include <cmath>
 #include <array>
 #include <vector>
+#include <fstream>
 //#include "jacobi.h"
 
 using namespace std;
@@ -17,97 +25,33 @@ using namespace std;
 //Function prototypes:
 void printMatrixA(double** A, int N);
 double maxoffdiag(double** A, int& k, int& l, int N);
-vector<double> jacobi_method(double** A, double** R, int N);
+vector<int> jacobi_method(double** A, double** R, int N);  //returneren en vektor med doubles
 void rotate ( double ** A, double ** R, int k, int l, int N );
 
-//Unit test (skal sjekke om jacobi finner rett egenverdier):
-TEST_CASE("5x5 egenverdi-test") {
-    int n = 5;
-    double tolerance = pow(10.0, -2.0);
-    double eigenvalue0_known = 1;
-    double eigenvalue0;
-    vector <double> diag(n);
-
-    //Set up 5x5 identity matrix:
-    double** testMatrix_1 = new double*[n];
-    for (int i = 0; i < n; i++){
-        testMatrix_1[i] = new double[n];
-    }
-    for (int i = 0; i < n; i++){
-        for (int j = 0; j < n; j++){
-            if (i == j){
-                testMatrix_1[i][j] = 1.0;
-            }
-            else{
-                testMatrix_1[i][j] = 0.0;
-            }
-        }
-
-    }
-
-    double** R = new double*[n];
-    for (int i = 0; i < n; i++){
-        R[i] = new double[n];
-    }
-
-    // solve with jacobi:
-    diag = jacobi_method(testMatrix_1, R, n);
-    eigenvalue0 = diag[0];
-    REQUIRE(abs(eigenvalue0 - eigenvalue0_known) < tolerance);
-}//Slutt test
-
-//Unit test (skal sjekke om maxoffdiag faktisk finner det storste offdiag elementet):
-TEST_CASE("5x5 maks offdiag element test") {
-    int n = 5;
-    double tolerance = pow(10.0, -2.0);
-    double maks_known = 0;
-    int k;
-    int l;
-
-    //Set up 5x5 matrix with:
-    double** testMatrix_2 = new double*[n];
-    for (int i = 0; i < n; i++){
-        testMatrix_2[i] = new double[n];
-    }
-    for (int i = 0; i < n; i++){
-        for (int j = 0; j < n; j++){
-            if (i == j){
-                testMatrix_2[i][j] = 1.0;
-            }
-            else{
-                testMatrix_2[i][j] = 0.0;
-            }
-        }
-
-    }
-    // use maxoffdiag:
-    double maks = maxoffdiag(testMatrix_2, k, l, n);
-    cout << "maks offdiag element: " << maks << endl;
-
-    REQUIRE(abs(maks - maks_known) < tolerance);
-}//Slutt test
-
-int main(int argc, char* argv[]){
-
-    int result = Catch::Session().run(argc, argv);  //kjorer testen
+int main(){
 
     //Definerer var som trengs for a lage matrisen A
-    int N = 100;
+    //N = 200 er passe?
+    int N = 200;
     double rho_0 = 0;
-    double rho_max = 5;
+    double rho_max = 8;
     double h = (rho_max - rho_0)/((double)N);
     double hh = h*h;
     double e = -1/hh;
+    double w_r = 0.25;
+    //double w_r = 5;
+    double w_r2 = w_r*w_r;
 
     //Lager vektorer som trengs:
     double* rho = new double[N];
     double* V = new double[N];
     double* d = new double[N];
+    double* eigenvec0 = new double[N];
 
     //Fyller vektorene
     for (int i = 0; i < N; i++){
         rho[i] = rho_0 + (i+1)*h;
-        V[i] = rho[i]*rho[i];
+        V[i] = w_r2*rho[i]*rho[i] + 1.0/rho[i];
         d[i] = 2./hh + V[i];
     }
 
@@ -135,10 +79,19 @@ int main(int argc, char* argv[]){
     for (int i = 0; i < N; i++){
         A[i][i] = d[i];
     }
-
     //printMatrixA(A, N);  //Skriver ut matrisen A som vi starter med
 
-    jacobi_method(A, R, N);
+    vector <int> ind = jacobi_method(A, R, N); //Kaller jacobi_method. ind inneholder
+
+    //Skriver til filen data.dat
+    ofstream outFile;
+    outFile.open("egenverdier.dat", std::ios::out);
+
+    for (int j = 0; j < N; j++){
+        eigenvec0[j] = R[ind[0]][j];  //eigenvec0 blir egenvektoren til grunntilstanden (dvs til laveste egenverdi)
+        outFile << eigenvec0[j] << endl;  //Skriver egenvektoren til fil
+    }
+    outFile.close();
 
     return 0;
 }  //Slutt pa main
@@ -156,7 +109,7 @@ void printMatrixA(double** A, int N) {
 }
 
 //Setting up the eigenvector matrix (som identitetsmatrisen?):
-vector<double> jacobi_method(double** A, double** R, int N) {
+vector<int> jacobi_method(double** A, double** R, int N) {
 
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++){
@@ -190,11 +143,35 @@ vector<double> jacobi_method(double** A, double** R, int N) {
         diag[i] = A[i][i];  //Fyller diag med A sine diagonalelementer
     }
 
+    //finner indeks til minste egenverdiene og lagrer indeksen i lowestIndex
+    int ll = 3;  //Antall egenverdier jeg bryr meg om
+    vector<double> lowest(ll);
+    vector<int> lowestIndex(ll);  //vektor som skal inneholde indeksene til de minste egenverdiene
+    for (int i = 0; i < ll; i++) {
+        int index = 0;
+        double low = 200;
+
+        for (unsigned int j = 0; j < diag.size(); j++) {
+            if (diag[j] < low) {
+                low = diag[j];
+                index = j;
+            }
+        }
+        lowest[i] = low;
+        lowestIndex[i] = index;
+        diag[index] = 91385938659368;
+    }
+
+    //printMatrixA(A,N);
+    for (int i = 0; i < ll; i++) {
+        cout <<  "Laveste egenverdier: " << lowest[i] << " tilhorende index: " << lowestIndex[i] << endl;
+    }
+
     sort(diag.begin(), diag.end());  //Sorterer vektoren fra minst til storste verdier
     //Skriver ut diag sine 3 forste elementer (3 forste egenverdiene):
-    cout << "3 forste egenverdier: " << diag[0] << " " << diag[1] << " " << diag[2] << endl;
+    //cout << "3 forste egenverdier: " << diag[0] << " " << diag[1] << " " << diag[2] << endl;
 
-    return diag;
+    return lowestIndex;
 }
 
 //Function to find the maximum element of A:
