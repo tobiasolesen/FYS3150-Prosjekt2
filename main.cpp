@@ -1,22 +1,4 @@
-//Bruk &k nar du vil endre variabelen k inni funksjonen. Brukes i prototypen av funksjonen og i def av funksjonen.
-//Ikke i kallet pa funksjonen. Trenger da ikke bruke *k noe sted tror jeg.
-//Matriser skal vaere dobbeltpekere.
-//Vektorer skal vaere enkeltpekere.
-//Vet at de 3 laveste egenverdiene skal vaere: 3, 7, 11 (i b) )
-
-//i d) skal jeg bruke koden fra b), endrer bare pa potensialet V(rho)
-//rho er avstanden mellom partiklene (?)
-//Vil finne den minste egenverdien (tilsvarer energien til ground state) og tilhorende egenvektor (bolgefunksjonen i ground state)
-
-//Sammenligner energien vi faar for grunntilstand ( energi=1.25) med n=2-tilfellet i artikkelen, altsa energi=0.625 (hvor de har w_r=0.25).
-//Vi far dobbelt saa mye energi (1.25 = 2*0.625).
-//Dette er pa grunn av skaleringen av Schrodinger ligningen. Siden de beholder faktoren 1/2 i SL sa er det riktig at jeg faar dobbelt saa mye.
-
-//apne tekstfil i terminal: less "filnavn"
-//Komme ut av fil og tilbake i terminal: shift + q
-//Med w_r=0.25 skal de minste egenverdiene bli: 1.25, 2.19, 3.18 ca
-//Normen er bevart under similarity transform
-// 10.986 rundes opp sa har 4 leading digits accuracy to 11?
+//FYS3150 Project 2. Thomas Sjaastad and Tobias Berdiin Olesen
 
 #define CATCH_CONFIG_RUNNER
 #include "catch.hpp"
@@ -119,7 +101,6 @@ int main(int argc, char* argv[]){
     double hh = h*h;
     double e = -1/hh;
     double w_r = 0.25;
-    //double w_r = 5;
     double w_r2 = w_r*w_r;
 
     //Lager vektorer som trengs:
@@ -161,8 +142,6 @@ int main(int argc, char* argv[]){
     for (int i = 0; i < N; i++){
         A[i][i] = d[i];
     }
-
-
 
     //printMatrixA(A, N);  //Skriver ut matrisen A som vi starter med
 
@@ -218,7 +197,6 @@ void printMatrixA(double** A, int N) {
 
 //Setting up the eigenvector matrix (som identitetsmatrisen?):
 vector<int> jacobi_method(double** A, double** R, int N) {
-
     for (int i = 0; i < N; i++){
         for (int j = 0; j < N; j++){
             if (i == j){
@@ -270,8 +248,6 @@ vector<int> jacobi_method(double** A, double** R, int N) {
         diag[index] = 91385938659368;
     }
 
-    //printMatrixA(A,N);
-
     cout << "De tre laveste egenverdiene fra Jacobi-metoden:" << endl;
     for (int i = 0; i < ll; i++) {
         cout << lowest[i] << " tilhorende index: " << lowestIndex[i] << endl;
@@ -281,7 +257,6 @@ vector<int> jacobi_method(double** A, double** R, int N) {
     //Skriver ut diag sine 3 forste elementer (3 forste egenverdiene):
     //cout << "3 forste egenverdier: " << diag[lowestIndex[0]] << " " << diag[1] << " " << diag[2] << endl;
     //cout << "3 forste egenverdier: " << diag[0] << " " << diag[1] << " " << diag[2] << endl;
-
 
     return lowestIndex;  //Inneholder indeksene til de 3 laveste egenverdiene
 }
@@ -354,5 +329,4 @@ void rotate ( double ** A, double ** R, int k, int l, int N ){
     }
 
     return;
-
 }
